@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESINA v4 — Dashboard Smart Forestry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="logo.jpeg">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        RESINA <span class="badge">v4</span>
+        <div class="subtitle">Remote Smart Integrated Network Automation</div>
+    </div>
+    <div class="header-status">
+        <div class="status-chip online" id="global-status">STATUS: ONLINE</div>
+        <div class="status-chip mode" id="operation-mode">MODE: OTOMATIS (SMART TAP)</div>
+    </div>
+</header>
+
+<div class="main-content">
+    
+    <div class="metrics-summary-grid">
+        <div class="card summary-card">
+            <div class="card-h">Total Produksi Getah (ID: PN-042)</div>
+            <div class="val-big" id="weight">0 <span class="unit">gram</span></div>
+            <div class="meter-bg"><div class="meter-fill" id="weight-meter" style="background: var(--green);"></div></div>
+            <p class="unit text-bold" id="harvest-estimate">Estimasi panen: -- hari lagi</p>
+        </div>
+
+        <div class="card summary-card">
+            <div class="card-h">Sistem Energi Mandiri</div>
+            <div class="val-big" id="bat-pct">100<span class="unit">%</span></div>
+            <div class="meter-bg"><div class="meter-fill" id="bat-meter" style="background: var(--green);"></div></div>
+            <p class="unit">Input Surya: <span id="solar-eff" style="color:var(--amber); font-weight: 600;">Optimal (10W)</span></p>
+        </div>
+
+        <div class="card summary-card" style="border: 1px solid var(--blue);">
+            <div class="card-h" style="color: var(--blue);">Cuaca & Jadwal Cerdas</div>
+            <div class="metrics-row">
+                <div>
+                    <p class="unit">Suhu Udara (DHT22)</p>
+                    <p class="text-bold" id="temp-val">22.5 °C</p>
+                </div>
+                <div>
+                    <p class="unit">Sensor Hujan</p>
+                    <p class="text-bold" id="rain-val">Cerah</p>
+                </div>
+            </div>
+            <p class="unit" style="margin-top: 5px;">Jadwal Sadap: <span style="color:var(--blue); font-weight: 600;">07:00 WITA</span></p>
+            <p class="unit">Status IoT: <span id="auto-status" style="color:var(--green); font-weight: 600;">Menunggu Waktu Optimal</span></p>
+        </div>
+    </div>
+
+    <div class="card map-container-card">
+        <div class="card-h">Peta Sebaran Unit RESINA & Pelacakan GPS</div>
+        <div id="main-map" class="map-leaflet"></div>
+    </div>
+
+    <div class="detail-control-section">
+        <div class="card tree-detail-card">
+            <div class="card-h">Detail Unit PN-042 (Spesies: Merkusii)</div>
+            <div class="detail-info-grid" id="tree-info">
+                <p><strong>Lokasi:</strong> Hutan Pinus Malino, Sulsel</p>
+                <p><strong>Diameter Pohon:</strong> Ø 45 cm</p>
+                <p><strong>Terakhir Disadap:</strong> 24 Jam yang lalu</p>
+                <p><strong>Dosis Stimulan:</strong> Asam Salisilat 5 ml</p>
+            </div>
+        </div>
+
+        <div class="card control-panel-card">
+            <div class="card-h">Panel Kendali Jarak Jauh & Simulasi AI</div>
+            <div class="control-actions-grid">
+                <button class="btn-ctrl btn-danger" onclick="sendCommand('EMERGENCY_STOP')">🛑 BERHENTI DARURAT (E-STOP)</button>
+                <button class="btn-ctrl btn-primary" onclick="sendCommand('CALIBRATE_SCALE')">⚖️ KALIBRASI WADAH (TARE)</button>
+                <div class="manual-ops-row">
+                    <button class="btn-ctrl btn-secondary" onclick="sendCommand('TEST_NOZZLE')">💧 SEMPROT MANUAL</button>
+                    <button class="btn-ctrl btn-secondary" onclick="sendCommand('TEST_SCRAPER')">🛠️ KIKIS MANUAL</button>
+                    <button class="btn-ctrl btn-secondary" onclick="sendCommand('TEST_OSCILLATION')">🔪 SADAP MANUAL</button>
+                </div>
+                
+                <hr style="border: 0; border-top: 1px dashed var(--border-color); margin: 5px 0;">
+                
+                <div class="card-h" style="font-size: 11px; margin-bottom: 8px; color: var(--text-main);">Simulasi Skenario Lapangan</div>
+                <div class="manual-ops-row">
+                    <button class="btn-ctrl" style="background: #7f8c8d; color: white;" onclick="toggleRain()">☁️ SIMULASI HUJAN</button>
+                    <button class="btn-ctrl" style="background: var(--blue); color: white;" onclick="triggerAutoTap()">⏱️ SIMULASI PUKUL 07:00 (AUTO-TAP)</button>
+                </div>
+                <div class="manual-ops-row" style="margin-top: -5px;">
+                    <button class="btn-ctrl" style="background: #34495e; color: white;" onclick="simulateTheft()">🚨 SIMULASI PENCURIAN</button>
+                    <button class="btn-ctrl" style="background: var(--amber); color: white;" onclick="enableRelocation()">📦 MODE RELOKASI</button>
+                    <button class="btn-ctrl" style="background: var(--green); color: white;" onclick="resetAlarm()">✅ RESET SISTEM</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card log-central-card">
+        <div class="card-h">Log Aktivitas Sistem Terenkripsi (AES-128)</div>
+        <div class="log-box" id="system-logs">
+            <div class="log-entry"><span class="log-time">[05:00:01]</span> <span class="encrypted">SISTEM_MULAI:</span> Inisialisasi Modul Sensor Cuaca Berhasil</div>
+            <div class="log-entry"><span class="log-time">[05:00:05]</span> <span class="encrypted">GPS_TERKUNCI:</span> Titik Jangkar Geofence Ditetapkan</div>
+        </div>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
