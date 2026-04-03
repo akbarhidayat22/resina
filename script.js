@@ -1,5 +1,5 @@
 // ==========================================
-// 1. Inisialisasi Data dari RESINA v4
+// 1. Inisialisasi Data dari RESINA 
 // ==========================================
 let weight = 342;
 let bat = 88;
